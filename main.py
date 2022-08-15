@@ -3,71 +3,8 @@ import requests
 from telebot import types
 import random
 import logging
-# from pathlib import Path
 from constants import *
 from config import Config
-
-# path = Path(__file__).parents[0]
-#
-# QUOTES_API = "http://api.forismatic.com/api/1.0/"
-# HOROSCOPE_API = "https://horoscopes.rambler.ru/api/front/v1/horoscope/today/"
-#
-# TOKEN = "5314229527:AAG5lKaYOu4Ubtr_VTJirKk6Tf7UExGL6EA"
-#
-# QUOTES_BUTTON_LIST = [
-#     "ЖГИ!",
-#     "РВИ ДУШУ, БЛЕАТЬ!",
-#     "ЕЩЕ!",
-#     "МОАР!",
-#     "ДАВАЙ, СКА!",
-#     "ДА! ЕЩЕ!",
-#     "БОЖЕ, АФТАР, ПЛАКАЮ!",
-#     "ДЕВАЧКИ, ПЛАЧУ!",
-# ]
-# RANDOM_CHOICE_MENU_BUTTON = "Заебал, ответь мои на вопросы!"
-# RANDOM_CHOICE_BUTTON = "Крутануть шар с предсказаниями"
-# HOROSCOPE_MENU_BUTTON = "Заебал, покажи мою судьбу!"
-# GO_BACK_BUTTON = "Надоело, давай назад!"
-# HOROSCOPE_BUTTON_LIST = {
-#     "Овен": "aries",
-#     "Телец": "taurus",
-#     "Близнецы": "gemini",
-#     "Рак": "cancer",
-#     "Лев": "leo",
-#     "Дева": "virgo",
-#     "Весы": "libra",
-#     "Скорпион": "scorpio",
-#     "Стрелец": "sagittarius",
-#     "Козерог": "capricorn",
-#     "Водолей": "aquarius",
-#     "Рыбы": "pisces",
-# }
-# RANDOM_CHOICE_MESSAGE = [
-#     "Да",
-#     "Нет",
-#     "Пока не понятно",
-#     "Скорее нет, чем да",
-#     "Скорее да, чем нет",
-#     "Это очень неопределенно",
-#     "Попробуй еще раз",
-#     "Скоро все прояснится",
-#     "Нужно больше времени",
-#     "Я не знаю ответа на этот вопрос",
-#     "Определенно да",
-#     "Определенно нет",
-# ]
-# NAVIGATION_MESSAGE = [
-#     "Погнали!",
-#     "Погнали",
-#     "пагнали",
-#     "Да тебе не угодишь, е-мое, хватит гонять меня!",
-#     "Е-мое, хватит шастать туда-сюда!",
-#     "Погнали, расскажу тебе все!",
-#     "Бля, ну погнали...",
-#     "Бли, погнали",
-#     "Опять?",
-#     "Определись уже!",
-# ]
 
 config = Config()
 bot = telebot.TeleBot(Config.token)
