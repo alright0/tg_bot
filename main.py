@@ -21,7 +21,7 @@ def handle_text(message):
 
     # вход в меню гороскопов
     if message.text == HOROSCOPE_MENU_BUTTON:
-        text = random.choice(NAVIGATION_MESSAGE)
+        text = random.choice(NAVIGATION_MESSAGE_LIST)
         markup = horoscope_markup()
 
     # вход в меню ответов на вопросы
@@ -31,14 +31,14 @@ def handle_text(message):
 
     # вход в главное меню(кнорка назад)
     elif message.text == GO_BACK_BUTTON:
-        text = random.choice(NAVIGATION_MESSAGE)
+        text = random.choice(NAVIGATION_MESSAGE_LIST)
         markup = initial_markup()
 
     # крутануть шар
     elif message.text == RANDOM_CHOICE_BUTTON:
-        text = random.choice(RANDOM_CHOICE_MESSAGE)
+        text = random.choice(RANDOM_CHOICE_MESSAGE_LIST)
 
-    # получить предсказание
+    # получить гороскоп
     elif message.text in HOROSCOPE_BUTTON_LIST.keys():
         horoscope_sign = HOROSCOPE_BUTTON_LIST.get(message.text)
         text = get_horoscope(horoscope_sign)

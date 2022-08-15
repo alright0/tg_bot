@@ -29,7 +29,7 @@ HOROSCOPE_BUTTON_LIST = {
     "Рыбы": "pisces",
 }
 
-RANDOM_CHOICE_MESSAGE = [
+RANDOM_CHOICE_MESSAGE_LIST = [
     "Пока не понятно",
     "Скорее нет, чем да",
     "Скорее да, чем нет",
@@ -45,7 +45,7 @@ RANDOM_CHOICE_MESSAGE = [
     "Ты меня еще долго доставать будешь?"
 ]
 
-NAVIGATION_MESSAGE = [
+NAVIGATION_MESSAGE_LIST = [
     "Погнали!",
     "Погнали",
     "пагнали",
