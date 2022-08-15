@@ -3,6 +3,7 @@ from config import Config
 
 config = Config()
 
+
 def get_quote_json() -> str:
     data_dict = {"method": "getQuote", "format": "json", "lang": "ru"}
     response = requests.post(config.quotes_api, data=data_dict)
@@ -22,4 +23,3 @@ def get_horoscope(horoscope_sign) -> str:
     text = data.get("text")
 
     return f"{source}\n{text}"
-

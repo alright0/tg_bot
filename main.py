@@ -3,16 +3,17 @@ import random
 import logging
 from constants import *
 from config import Config
-from markup import initial_markup, horoscope_markup, random_choice_markup
+from markup import Markup
 from external_api import get_quote_json, get_horoscope
 
 config = Config()
+menu = Markup()
 bot = telebot.TeleBot(Config.token)
 
 
 @bot.message_handler(commands=["start"])
 def start(message):
-    bot.send_message(message.chat.id, "Чего тебе?", reply_markup=initial_markup())
+    bot.send_message(message.chat.id, "Чего тебе?", reply_markup=menu.initial_markup())
 
 
 @bot.message_handler(content_types=["text"])
@@ -22,17 +23,17 @@ def handle_text(message):
     # вход в меню гороскопов
     if message.text == HOROSCOPE_MENU_BUTTON:
         text = random.choice(NAVIGATION_MESSAGE_LIST)
-        markup = horoscope_markup()
+        markup = menu.horoscope_markup()
 
     # вход в меню ответов на вопросы
     elif message.text == RANDOM_CHOICE_MENU_BUTTON:
-        text = "Задумай свой вопрос и крутани шар. Ответы: 'Да', 'Нет' и все, что между ними"
-        markup = random_choice_markup()
+        text = 'Задумай свой вопрос и крутани шар. Ответы: "Да", "Нет" и все, что между ними'
+        markup = menu.random_choice_markup()
 
     # вход в главное меню(кнорка назад)
-    elif message.text == GO_BACK_BUTTON:
+    elif message.text == INITIAL_MENU:
         text = random.choice(NAVIGATION_MESSAGE_LIST)
-        markup = initial_markup()
+        markup = menu.initial_markup()
 
     # крутануть шар
     elif message.text == RANDOM_CHOICE_BUTTON:
@@ -46,7 +47,7 @@ def handle_text(message):
     # получить цитату
     elif message.text in QUOTES_BUTTON_LIST:
         text = get_quote_json()
-        markup = initial_markup()
+        markup = menu.initial_markup()
 
     # остальное
     else:

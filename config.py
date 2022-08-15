@@ -8,9 +8,9 @@ load_dotenv()
 
 
 class Config:
-    quotes_api = os.getenv('quotes_api')
-    horoscope_api = os.getenv('horoscope_api')
-    token = os.getenv('token')
+    quotes_api = os.getenv("quotes_api")
+    horoscope_api = os.getenv("horoscope_api")
+    token = os.getenv("token")
     path = Path(__file__).parents[0]
 
     logging.basicConfig(

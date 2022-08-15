@@ -1,7 +1,7 @@
 RANDOM_CHOICE_MENU_BUTTON = "Ответь мои на вопросы!"
 RANDOM_CHOICE_BUTTON = "Крутануть шар с предсказаниями"
 HOROSCOPE_MENU_BUTTON = "Покажи мою судьбу!"
-GO_BACK_BUTTON = "Надоело, давай назад!"
+INITIAL_MENU = "Надоело, давай назад!"
 
 QUOTES_BUTTON_LIST = [
     "ЖГИ!",
@@ -42,7 +42,7 @@ RANDOM_CHOICE_MESSAGE_LIST = [
     "Скоро все прояснится",
     "Нужно больше времени",
     "Я не знаю ответа на этот вопрос",
-    "Ты меня еще долго доставать будешь?"
+    "Ты меня еще долго доставать будешь?",
 ]
 
 NAVIGATION_MESSAGE_LIST = [
