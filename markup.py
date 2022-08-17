@@ -28,51 +28,44 @@ class Button:
     def horoscope_signs_buttons():
         return [types.KeyboardButton(b) for b in HOROSCOPE_BUTTON_LIST.keys()]
 
+    @staticmethod
+    def horoscope_periods():
+        return [types.KeyboardButton(b) for b in HOROSCOPE_PERIOD_LIST]
 
 class Markup:
     def __init__(self):
         initial_markup = self.initial_markup()
-        horoscope_markup = self.horoscope_markup()
+        horoscope_signs_markup = self.horoscope_signs_markup()
+        horoscope_menu_markup = self.horoscope_menu_markup()
         random_choice_markup = self.random_choice_markup()
 
     def initial_markup(self):
         buttons = [
-            {
-                "buttons": [
-                    Button.get_quote(),
-                    Button.horoscope_menu(),
-                    Button.random_choice_menu(),
-                ],
-                "rows": 1,
-            },
+            self._create_button([Button.get_quote(), Button.horoscope_menu(), Button.random_choice_menu()], rows=1)
         ]
 
         return self._build_markup(buttons)
 
-    def horoscope_markup(self):
+    def horoscope_menu_markup(self):
         buttons = [
-            {
-                "buttons": Button.main_menu(),
-                "rows": 1,
-            },
-            {
-                "buttons": Button.horoscope_signs_buttons(),
-                "rows": 4,
-            },
+            self._create_button(Button.main_menu(), rows=1),
+            self._create_button(Button.horoscope_periods(), rows=3)
+        ]
+
+        return self._build_markup(buttons)
+
+    def horoscope_signs_markup(self):
+        buttons = [
+            self._create_button(Button.main_menu(), rows=1),
+            self._create_button(Button.horoscope_signs_buttons(), rows=3)
         ]
 
         return self._build_markup(buttons)
 
     def random_choice_markup(self):
         buttons = [
-            {
-                "buttons": Button.main_menu(),
-                "rows": 1,
-            },
-            {
-                "buttons": Button.random_choice(),
-                "rows": 1,
-            },
+            self._create_button(Button.main_menu(), rows=1),
+            self._create_button(Button.random_choice(), rows=1)
         ]
 
         return self._build_markup(buttons)
@@ -89,6 +82,11 @@ class Markup:
             markup.add(*buttons_list, row_width=rows)
         return markup
 
+    def _create_button(self, buttons, rows=1):
+        return {
+            "buttons": buttons,
+            "rows": rows,
+        }
 
 def _list_wrapper(obj):
     if isinstance(obj, (list, tuple)):
@@ -103,3 +101,4 @@ def _dynamic_naming(names) -> str:
         :return: имя кнопки
     """
     return random.choice(_list_wrapper(names))
+

@@ -15,11 +15,11 @@ def get_quote_json() -> str:
     return str(quote) + (f"\nАвтор: {author}" if author else "")
 
 
-def get_horoscope(horoscope_sign) -> str:
-    response = requests.get(config.horoscope_api + horoscope_sign)
+def get_horoscope(horoscope_sign, horoscope_period) -> str:
+    response = requests.get(f"{config.horoscope_api}/{horoscope_period}/{horoscope_sign}")
     data = response.json()
 
     source = data.get("source")
     text = data.get("text")
 
-    return f"{source}\n{text}"
+    return f"**{source}**\n{text}"
