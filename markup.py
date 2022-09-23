@@ -17,6 +17,18 @@ class Button:
         return types.KeyboardButton(RANDOM_CHOICE_MENU_BUTTON)
 
     @staticmethod
+    def subscribe_menu():
+        return types.KeyboardButton(SUBSCRIBE_MENU)
+
+    @staticmethod
+    def subscribe():
+        return types.KeyboardButton(SUBSCRIBE_BUTTON)
+
+    @staticmethod
+    def unsubscribe():
+        return types.KeyboardButton(UNSUBSCRIBE_BUTTON)
+
+    @staticmethod
     def get_quote():
         return types.KeyboardButton(_dynamic_naming(QUOTES_BUTTON_LIST))
 
@@ -32,6 +44,7 @@ class Button:
     def horoscope_periods():
         return [types.KeyboardButton(b) for b in HOROSCOPE_PERIOD_LIST]
 
+
 class Markup:
     def __init__(self):
         initial_markup = self.initial_markup()
@@ -41,7 +54,15 @@ class Markup:
 
     def initial_markup(self):
         buttons = [
-            self._create_button([Button.get_quote(), Button.horoscope_menu(), Button.random_choice_menu()], rows=1)
+            self._create_button(
+                [
+                    Button.get_quote(),
+                    Button.horoscope_menu(),
+                    Button.random_choice_menu(),
+                    Button.subscribe_menu(),
+                ],
+                rows=1
+            )
         ]
 
         return self._build_markup(buttons)
@@ -69,6 +90,16 @@ class Markup:
         ]
 
         return self._build_markup(buttons)
+
+    def manage_subscribe_markup(self):
+        buttons = [
+            self._create_button(Button.main_menu(), rows=1),
+            self._create_button(Button.subscribe(), rows=1),
+            self._create_button(Button.unsubscribe(), rows=1),
+        ]
+
+        return self._build_markup(buttons)
+
 
     @staticmethod
     def _build_markup(buttons):

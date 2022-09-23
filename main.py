@@ -2,14 +2,18 @@ import telebot
 import random
 import logging
 from constants import *
-from config import Config
+from config import Config, Database as db
 from markup import Markup
 from external_api import get_quote_json, get_horoscope
 import re
+import sqlite3
+
 
 config = Config()
 menu = Markup()
 bot = telebot.TeleBot(Config.token)
+
+db()
 
 state = {
     "horoscope_period": 'today'
@@ -40,6 +44,11 @@ def handle_text(message):
         text = '*Задумай свой вопрос и крутани шар*\nОтветы: "Да", "Нет" и все, что между ними'
         markup = menu.random_choice_markup()
 
+    # подписаться на цитаты
+    elif message.text == SUBSCRIBE_MENU:
+        text = 'Хочешь получать умные цитаты каждый день?\nСтетхем будет завидовать тебе!'
+        markup = menu.manage_subscribe_markup()
+
     # вход в главное меню(кнорка назад)
     elif message.text == INITIAL_MENU:
         text = random.choice(NAVIGATION_MESSAGE_LIST)
@@ -60,6 +69,27 @@ def handle_text(message):
         horoscope_period = state.get("horoscope_period")
         text = get_horoscope(horoscope_sign, horoscope_period)
 
+    # подписаться на цитаты
+    elif message.text == SUBSCRIBE_BUTTON:
+        user = message.from_user
+
+        if not db.check_user_is_subscriber(user):
+            db.add_user(user)
+            text = "Красава! Получишь цитату в течение попозже!"
+        else:
+            text = "Ты уже подписан на цитаты! Побереги себя!"
+
+    elif message.text == UNSUBSCRIBE_BUTTON:
+        user = message.from_user
+
+        if db.check_user_is_subscriber(user):
+            text = "Ты больше не будешь получать цитаты, потому что ты не фелосаф"
+            db.delete_user(user)
+        else:
+            text = "ТЫ даже не подписался на них! Сначала подпишись потом выебывайся!"
+
+
+
     # остальное
     else:
         text = "Жми на кнопки, а не рассказы мне пиши"
@@ -71,8 +101,9 @@ def handle_text(message):
         parse_mode="MARKDOWN"
     )
 
+    user = message.from_user
     logging.info(
-        f"user: {message.from_user.first_name} {message.from_user.last_name}. message: {message.text}"
+        f"user: {user.first_name} {user.last_name}. username: {user.username}. message: {message.text}"
     )
 
 
