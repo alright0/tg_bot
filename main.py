@@ -1,3 +1,5 @@
+from time import sleep
+
 import telebot
 import random
 import logging
@@ -6,8 +8,8 @@ from config import Config, Database as db
 from markup import Markup
 from external_api import get_quote_json, get_horoscope
 import re
-import sqlite3
-
+import schedule
+import threading
 
 config = Config()
 menu = Markup()
@@ -74,21 +76,19 @@ def handle_text(message):
         user = message.from_user
 
         if not db.check_user_is_subscriber(user):
-            db.add_user(user)
+            db.add_user(message)
             text = "Красава! Получишь цитату в течение попозже!"
         else:
-            text = "Ты уже подписан на цитаты! Побереги себя!"
+            text = "У тебя уже есть подписка на цитаты! Побереги себя!"
 
+    # отписаться от цитат
     elif message.text == UNSUBSCRIBE_BUTTON:
         user = message.from_user
-
         if db.check_user_is_subscriber(user):
             text = "Ты больше не будешь получать цитаты, потому что ты не фелосаф"
             db.delete_user(user)
         else:
-            text = "Ты даже не подписался на них! Сначала подпишись потом выебывайся!"
-
-
+            text = "Сначала подпишись на цитаты, потом отписывайся, я не наоборот!!"
 
     # остальное
     else:
@@ -107,6 +107,19 @@ def handle_text(message):
     )
 
 
+def send_quote():
+    ids = db.get_all_subscribers()
+    for id in ids:
+        bot.send_message(id[0], get_quote_json())
+        logging.info(f"quote sent to user {id}")
+
+
+def schedule_checker():
+    while True:
+        schedule.run_pending()
+        sleep(1)
+
+
 def clean_html(text):
     replace_closed_tags = re.compile('</.*?>')
     delete_all_tags = re.compile('<.*?>')
@@ -114,5 +127,8 @@ def clean_html(text):
     text = re.sub (replace_closed_tags, '\n', text)
     return re.sub(delete_all_tags, '', text)
 
+
+schedule.every().day.at("09:00").do(send_quote)
+threading.Thread(target=schedule_checker).start()
 
 bot.polling(none_stop=True, interval=0)

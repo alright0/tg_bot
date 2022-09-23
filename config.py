@@ -33,6 +33,7 @@ class Database:
         (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             user_id INTEGER,
+            chat_id INTEGER,
             user_first_name VARCHAR,
             user_last_name VARCHAR,
             user_name VARCHAR
@@ -41,13 +42,21 @@ class Database:
 
 
     @classmethod
-    def add_user(cls, user):
+    def add_user(cls, message):
+        user = message.from_user
+        chat_id = message.chat.id
+
         if not cls.check_user_is_subscriber(user):
             cls.cursor.execute(f"""
-                INSERT INTO users (user_id, user_first_name, user_last_name, user_name)
-                VALUES ('{user.id}', '{user.first_name}', '{user.last_name}', '{user.username}') 
+                INSERT INTO users (user_id, chat_id, user_first_name, user_last_name, user_name)
+                VALUES ('{user.id}', '{chat_id}', '{user.first_name}', '{user.last_name}', '{user.username}') 
             ;""")
             cls.db.commit()
+
+    @classmethod
+    def delete_user(cls, user):
+        if cls.check_user_is_subscriber(user):
+            cls.cursor.execute(f"DELETE FROM users WHERE user_id='{user.id}';")
 
     @classmethod
     def check_user_is_subscriber(cls, user):
@@ -55,6 +64,5 @@ class Database:
         return bool(query)
 
     @classmethod
-    def delete_user(cls, user):
-        if cls.check_user_is_subscriber(user):
-            cls.cursor.execute(f"DELETE FROM users WHERE user_id='{user.id}';")
+    def get_all_subscribers(cls):
+        return cls.cursor.execute('SELECT chat_id from users;').fetchall()
