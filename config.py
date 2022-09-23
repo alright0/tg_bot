@@ -51,7 +51,7 @@ class Database:
 
     @classmethod
     def check_user_is_subscriber(cls, user):
-        query = cls.cursor.execute(f"SELECT {user.id} FROM users;").fetchall()
+        query = cls.cursor.execute(f"SELECT * FROM users where user_id={user.id};").fetchall()
         return bool(query)
 
     @classmethod
