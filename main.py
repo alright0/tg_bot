@@ -119,7 +119,6 @@ def send_quote():
             logging.info(f"quote sent to user: {id}")
         except ApiTelegramException as e:
             db.delete_user(id)
-            logging.warning(f"message not sent to user: {id}. user deleted")
 
 
 def schedule_checker():

@@ -51,12 +51,17 @@ class Database:
                 INSERT INTO users (user_id, chat_id, user_first_name, user_last_name, user_name)
                 VALUES ('{user.id}', '{chat_id}', '{user.first_name}', '{user.last_name}', '{user.username}') 
             ;""")
-            cls.db.commit()
+            logging.info(f'user: {user.id} added to db')
+            return
+        logging.warning(f'user: {user.id} not added to db. Already exists.')
 
     @classmethod
     def delete_user(cls, user_id):
         if cls.check_user_is_subscriber(user_id):
             cls.cursor.execute(f"DELETE FROM users WHERE user_id='{user_id}';")
+            logging.info(f'user: {user_id} deleted from db')
+            return
+        logging.info(f'user: {user_id} not deleted from db. Not found in db.')
 
     @classmethod
     def check_user_is_subscriber(cls, user_id):
