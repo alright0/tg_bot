@@ -46,7 +46,7 @@ class Database:
         user = message.from_user
         chat_id = message.chat.id
 
-        if not cls.check_user_is_subscriber(user):
+        if not cls.check_user_is_subscriber(user.id):
             cls.cursor.execute(f"""
                 INSERT INTO users (user_id, chat_id, user_first_name, user_last_name, user_name)
                 VALUES ('{user.id}', '{chat_id}', '{user.first_name}', '{user.last_name}', '{user.username}') 
@@ -54,13 +54,13 @@ class Database:
             cls.db.commit()
 
     @classmethod
-    def delete_user(cls, user):
-        if cls.check_user_is_subscriber(user):
-            cls.cursor.execute(f"DELETE FROM users WHERE user_id='{user.id}';")
+    def delete_user(cls, user_id):
+        if cls.check_user_is_subscriber(user_id):
+            cls.cursor.execute(f"DELETE FROM users WHERE user_id='{user_id}';")
 
     @classmethod
-    def check_user_is_subscriber(cls, user):
-        query = cls.cursor.execute(f"SELECT * FROM users where user_id={user.id};").fetchall()
+    def check_user_is_subscriber(cls, user_id):
+        query = cls.cursor.execute(f"SELECT * FROM users where user_id='{user_id}';").fetchall()
         return bool(query)
 
     @classmethod

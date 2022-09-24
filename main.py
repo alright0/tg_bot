@@ -3,11 +3,14 @@ from time import sleep
 import telebot
 import random
 import logging
+
+from telebot.apihelper import ApiTelegramException
+
 from constants import *
 from config import Config, Database as db
 from markup import Markup
 from external_api import get_quote_json, get_horoscope
-import re
+from functions import clean_html
 import schedule
 import threading
 
@@ -75,18 +78,18 @@ def handle_text(message):
     elif message.text == SUBSCRIBE_BUTTON:
         user = message.from_user
 
-        if not db.check_user_is_subscriber(user):
+        if not db.check_user_is_subscriber(user.id):
             db.add_user(message)
-            text = "Красава! Получишь цитату в течение попозже!"
+            text = "Красава! Умная мысль посетит тебя утром!"
         else:
             text = "У тебя уже есть подписка на цитаты! Побереги себя!"
 
     # отписаться от цитат
     elif message.text == UNSUBSCRIBE_BUTTON:
         user = message.from_user
-        if db.check_user_is_subscriber(user):
+        if db.check_user_is_subscriber(user.id):
             text = "Ты больше не будешь получать цитаты, потому что ты не фелосаф"
-            db.delete_user(user)
+            db.delete_user(user.id)
         else:
             text = "Сначала подпишись на цитаты, потом отписывайся, я не наоборот!!"
 
@@ -110,22 +113,19 @@ def handle_text(message):
 def send_quote():
     ids = db.get_all_subscribers()
     for id in ids:
-        bot.send_message(id[0], get_quote_json())
-        logging.info(f"quote sent to user {id}")
+        try:
+            id = id[0]
+            bot.send_message(id, get_quote_json())
+            logging.info(f"quote sent to user: {id}")
+        except ApiTelegramException as e:
+            db.delete_user(id)
+            logging.warning(f"message not sent to user: {id}. user deleted")
 
 
 def schedule_checker():
     while True:
         schedule.run_pending()
         sleep(1)
-
-
-def clean_html(text):
-    replace_closed_tags = re.compile('</.*?>')
-    delete_all_tags = re.compile('<.*?>')
-
-    text = re.sub (replace_closed_tags, '\n', text)
-    return re.sub(delete_all_tags, '', text)
 
 
 schedule.every().day.at("09:00").do(send_quote)
