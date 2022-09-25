@@ -24,6 +24,7 @@ class Config:
         format="%(asctime)s - %(message)s",
         datefmt="%d-%m-%y %H:%M:%S",
     )
+    sys.stdout = open(logs_path / 'stdout.log', 'a')
 
     sys.stderr = open(logs_path / 'stderr.log', 'a')
 
