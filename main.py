@@ -23,7 +23,6 @@ db()
 state = {
     "horoscope_period": 'today'
 }
-
 @bot.message_handler(commands=["start"])
 def start(message):
     bot.send_message(message.chat.id, "Чего тебе?", reply_markup=menu.initial_markup())
@@ -32,7 +31,6 @@ def start(message):
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
     markup = None
-
     # вход в меню гороскопов(выбор периода)
     if message.text == HOROSCOPE_MENU_BUTTON:
         text = random.choice(NAVIGATION_MESSAGE_LIST)
