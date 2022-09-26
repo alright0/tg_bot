@@ -29,6 +29,7 @@ class Config:
 
 class Database:
     db = sqlite3.connect(Config.db_path, uri=True, check_same_thread=False, timeout=20)
+    db.execute("PRAGMA journal_mode=WAL")
 
     cursor = db.cursor()
 
