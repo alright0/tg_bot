@@ -3,7 +3,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 import sqlite3
-import sys
 
 load_dotenv()
 
@@ -24,16 +23,21 @@ class Config:
         format="%(asctime)s - %(message)s",
         datefmt="%d-%m-%y %H:%M:%S",
     )
-    sys.stderr = open(logs_path / 'stderr.log', 'a')
+    # sys.stderr = open(logs_path / 'stderr.log', 'a')
 
 
 class Database:
-    db = sqlite3.connect(Config.db_path, uri=True, check_same_thread=False, timeout=20)
-    db.execute("PRAGMA journal_mode=WAL")
-
+    db = sqlite3.connect(Config.db_path, uri=True, check_same_thread=False, timeout=20, )
     cursor = db.cursor()
 
-    cursor.execute('''
+    def __init__(self):
+        self.init_db()
+
+    @classmethod
+    def init_db(cls):
+
+        cls.db.execute("PRAGMA journal_mode=WAL")
+        cls._query('''
         CREATE TABLE IF NOT EXISTS users 
         (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -45,14 +49,13 @@ class Database:
         )               
         ;''')
 
-
     @classmethod
     def add_user(cls, message):
         user = message.from_user
         chat_id = message.chat.id
 
         if not cls.check_user_is_subscriber(user.id):
-            cls.cursor.execute(f"""
+            cls._query(f"""
                 INSERT INTO users (user_id, chat_id, user_first_name, user_last_name, user_name)
                 VALUES ('{user.id}', '{chat_id}', '{user.first_name}', '{user.last_name}', '{user.username}') 
             ;""")
@@ -63,16 +66,31 @@ class Database:
     @classmethod
     def delete_user(cls, user_id):
         if cls.check_user_is_subscriber(user_id):
-            cls.cursor.execute(f"DELETE FROM users WHERE user_id='{user_id}';")
+            cls._query(f"DELETE FROM users WHERE user_id='{user_id}';")
             logging.info(f'user: {user_id} deleted from db')
             return
         logging.info(f'user: {user_id} not deleted from db. Not found in db.')
 
     @classmethod
     def check_user_is_subscriber(cls, user_id):
-        query = cls.cursor.execute(f"SELECT * FROM users where user_id='{user_id}';").fetchall()
+        query = cls._query(f"SELECT * FROM users where user_id='{user_id}';").fetchall()
         return bool(query)
 
     @classmethod
     def get_all_subscribers(cls):
-        return cls.cursor.execute('SELECT chat_id from users;').fetchall()
+        return cls._query('SELECT chat_id from users;').fetchall()
+
+    @classmethod
+    def _query(cls, query):
+        cls.db.close()
+        try:
+            cls.cursor.execute('SELECT 1;')
+        except sqlite3.ProgrammingError:
+            cls.cursor = cls._reconnect()
+        return cls.cursor.execute(query)
+
+    @staticmethod
+    def _reconnect():
+        con = sqlite3.connect(Config.db_path, uri=True, check_same_thread=False, timeout=20)
+        logging.warning("connection closed. Reconnect")
+        return con.cursor()
