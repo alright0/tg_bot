@@ -82,7 +82,6 @@ class Database:
 
     @classmethod
     def _query(cls, query):
-        cls.db.close()
         try:
             cls.cursor.execute('SELECT 1;')
         except sqlite3.ProgrammingError:
