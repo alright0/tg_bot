@@ -13,7 +13,7 @@ class Config:
     token = os.getenv("token")
 
     path = Path(__file__).parents[0]
-    db_path = f'file:{path}/database1.db'
+    db_path = f'file:{path}/database.db'
     logs_path = path / 'logs'
 
     logging.basicConfig(
