@@ -3,6 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 import sqlite3
+import sys
 
 load_dotenv()
 
@@ -23,7 +24,7 @@ class Config:
         format="%(asctime)s - %(message)s",
         datefmt="%d-%m-%y %H:%M:%S",
     )
-    # sys.stderr = open(logs_path / 'stderr.log', 'a')
+    sys.stderr = open(logs_path / 'stderr.log', 'a')
 
 
 class Database:
@@ -36,7 +37,6 @@ class Database:
     @classmethod
     def init_db(cls):
 
-        # cls.db.execute("PRAGMA journal_mode=WAL")
         cls._query('''
         CREATE TABLE IF NOT EXISTS users 
         (
