@@ -13,7 +13,7 @@ class Config:
     token = os.getenv("token")
 
     path = Path(__file__).parents[0]
-    db_path = f'file:{path}/database.db'
+    db_path = f'file:{path}/database1.db'
     logs_path = path / 'logs'
 
     logging.basicConfig(
@@ -27,7 +27,7 @@ class Config:
 
 
 class Database:
-    db = sqlite3.connect(Config.db_path, uri=True, check_same_thread=False, timeout=20, )
+    db = sqlite3.connect(Config.db_path, uri=True, check_same_thread=False, timeout=20,  isolation_level=None)
     cursor = db.cursor()
 
     def __init__(self):
@@ -36,7 +36,7 @@ class Database:
     @classmethod
     def init_db(cls):
 
-        cls.db.execute("PRAGMA journal_mode=WAL")
+        # cls.db.execute("PRAGMA journal_mode=WAL")
         cls._query('''
         CREATE TABLE IF NOT EXISTS users 
         (
@@ -90,6 +90,6 @@ class Database:
 
     @staticmethod
     def _reconnect():
-        con = sqlite3.connect(Config.db_path, uri=True, check_same_thread=False, timeout=20)
+        con = sqlite3.connect(Config.db_path, uri=True, check_same_thread=False, timeout=20,  isolation_level=None)
         logging.warning("connection closed. Reconnect")
         return con.cursor()
