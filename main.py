@@ -9,7 +9,7 @@ from telebot.apihelper import ApiTelegramException
 from constants import *
 from config import Config, Database as db
 from markup import Markup
-from external_api import get_quote_json, get_horoscope
+from external_api import get_quote, get_horoscope
 from functions import clean_html
 import schedule
 import threading
@@ -63,7 +63,7 @@ def handle_text(message):
 
     # получить цитату
     elif message.text in QUOTES_BUTTON_LIST:
-        text = get_quote_json()
+        text = get_quote()
         markup = menu.initial_markup()
 
     # получить гороскоп
@@ -113,7 +113,9 @@ def send_quote():
     for id in ids:
         try:
             id = id[0]
-            bot.send_message(id, get_quote_json())
+            quote = get_quote()
+
+            bot.send_message(id, quote)
             logging.info(f"quote sent to user: {id}")
         except ApiTelegramException as e:
             db.delete_user(id)
