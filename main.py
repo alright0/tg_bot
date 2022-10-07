@@ -49,8 +49,13 @@ def handle_text(message):
 
     # подписаться на цитаты
     elif message.text == SUBSCRIBE_MENU:
+        user = message.from_user
         text = 'Хочешь получать умные цитаты каждый день?\nСтетхем будет завидовать тебе!'
-        markup = menu.manage_subscribe_markup()
+
+        if db.check_user_is_subscriber(user.id):
+            markup = menu.manage_unsubscribe_markup()
+        else:
+            markup = menu.manage_subscribe_markup()
 
     # вход в главное меню(кнорка назад)
     elif message.text == INITIAL_MENU:
@@ -75,21 +80,19 @@ def handle_text(message):
     # подписаться на цитаты
     elif message.text == SUBSCRIBE_BUTTON:
         user = message.from_user
+        markup = menu.manage_unsubscribe_markup()
 
         if not db.check_user_is_subscriber(user.id):
             db.add_user(message)
             text = "Красава! Умная мысль посетит тебя утром!"
-        else:
-            text = "У тебя уже есть подписка на цитаты! Побереги себя!"
 
     # отписаться от цитат
     elif message.text == UNSUBSCRIBE_BUTTON:
         user = message.from_user
+        markup = menu.manage_subscribe_markup()
         if db.check_user_is_subscriber(user.id):
             text = "Ты больше не будешь получать цитаты, потому что ты не фелосаф"
             db.delete_user(user.id)
-        else:
-            text = "Сначала подпишись на цитаты, потом отписывайся, я не наоборот!!"
 
     # остальное
     else:
@@ -128,6 +131,6 @@ def schedule_checker():
 
 
 schedule.every().day.at("09:00").do(send_quote)
-threading.Thread(target=schedule_checker).start()
+# threading.Thread(target=schedule_checker).start()
 
 bot.infinity_polling(interval=0, timeout=600)

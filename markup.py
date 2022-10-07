@@ -95,6 +95,13 @@ class Markup:
         buttons = [
             self._create_button(Button.main_menu(), rows=1),
             self._create_button(Button.subscribe(), rows=1),
+        ]
+
+        return self._build_markup(buttons)
+
+    def manage_unsubscribe_markup(self):
+        buttons = [
+            self._create_button(Button.main_menu(), rows=1),
             self._create_button(Button.unsubscribe(), rows=1),
         ]
 

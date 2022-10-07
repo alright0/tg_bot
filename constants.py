@@ -2,7 +2,7 @@ RANDOM_CHOICE_MENU_BUTTON = "Ответь мои на вопросы!"
 RANDOM_CHOICE_BUTTON = "Крутануть шар с предсказаниями"
 HOROSCOPE_MENU_BUTTON = "Покажи мою судьбу!"
 INITIAL_MENU = "Надоело, давай назад!"
-SUBSCRIBE_MENU = "Кой чо..."
+SUBSCRIBE_MENU = "Подписка на цитаты"
 SUBSCRIBE_BUTTON = "Цитаты?! Конечно, хочу!"
 UNSUBSCRIBE_BUTTON = "Цитаты?! Отпиши меня от сраных цитат!!"
 
