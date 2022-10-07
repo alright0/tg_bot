@@ -81,18 +81,23 @@ def handle_text(message):
     elif message.text == SUBSCRIBE_BUTTON:
         user = message.from_user
         markup = menu.manage_unsubscribe_markup()
+        text = "Красава! Умная мысль посетит тебя утром!"
 
         if not db.check_user_is_subscriber(user.id):
             db.add_user(message)
-            text = "Красава! Умная мысль посетит тебя утром!"
+        else:
+            text = "У тебя уже есть подписка на цитаты! Побереги себя!"
 
     # отписаться от цитат
     elif message.text == UNSUBSCRIBE_BUTTON:
         user = message.from_user
         markup = menu.manage_subscribe_markup()
+        text = "Ты больше не будешь получать цитаты, потому что ты не фелосаф"
         if db.check_user_is_subscriber(user.id):
-            text = "Ты больше не будешь получать цитаты, потому что ты не фелосаф"
             db.delete_user(user.id)
+        else:
+            text = "Сначала подпишись на цитаты, потом отписывайся, я не наоборот!!"
+
 
     # остальное
     else:
@@ -112,7 +117,7 @@ def handle_text(message):
 
 
 def send_quote():
-    ids = db.get_all_subscribers()
+    ids = set(db.get_all_subscribers())
     for id in ids:
         try:
             id = id[0]
