@@ -1,0 +1,24 @@
+name: Deploy to vps server
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to VDS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          port: ${{ secrets.REMOTE_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          username: ${{ secrets.REMOTE_USER }}
+
+          script: |
+            cd /var/www/tg_bot
+            git fetch
+            git pull
+            git reset --hard origin/master
+            supervisorctl restart toowisebot
