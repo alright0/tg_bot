@@ -5,6 +5,7 @@ import random
 import logging
 
 from telebot.apihelper import ApiTelegramException
+from telebot.types import BotCommand
 
 from constants import *
 from config import Config, Database as db
@@ -18,11 +19,10 @@ config = Config()
 menu = Markup()
 bot = telebot.TeleBot(Config.token)
 
+bot.set_my_commands(config.commands)
+
 db()
 
-state = {
-    "horoscope_period": 'today'
-}
 @bot.message_handler(commands=["start"])
 def start(message):
     bot.send_message(message.chat.id, "Чего тебе?", reply_markup=menu.initial_markup())
@@ -40,7 +40,7 @@ def handle_text(message):
     elif message.text in HOROSCOPE_PERIOD_LIST.keys():
         text = random.choice(NAVIGATION_MESSAGE_LIST)
         markup = menu.horoscope_signs_markup()
-        state.update({"horoscope_period": HOROSCOPE_PERIOD_LIST.get(message.text)})
+        config.state.update({"horoscope_period": HOROSCOPE_PERIOD_LIST.get(message.text)})
 
     # вход в меню ответов на вопросы
     elif message.text == RANDOM_CHOICE_MENU_BUTTON:
@@ -74,7 +74,7 @@ def handle_text(message):
     # получить гороскоп
     elif message.text in HOROSCOPE_BUTTON_LIST.keys():
         horoscope_sign = HOROSCOPE_BUTTON_LIST.get(message.text)
-        horoscope_period = state.get("horoscope_period")
+        horoscope_period = config.state.get("horoscope_period", 'today')
         text = get_horoscope(horoscope_sign, horoscope_period)
 
     # подписаться на цитаты
@@ -136,6 +136,6 @@ def schedule_checker():
 
 
 schedule.every().day.at("09:00").do(send_quote)
-threading.Thread(target=schedule_checker).start()
+# threading.Thread(target=schedule_checker).start()
 
 bot.infinity_polling(interval=0, timeout=600)

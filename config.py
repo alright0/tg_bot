@@ -5,6 +5,8 @@ import os
 import sqlite3
 import sys
 
+from telebot.types import BotCommand
+
 load_dotenv()
 
 
@@ -25,6 +27,12 @@ class Config:
         datefmt="%d-%m-%y %H:%M:%S",
     )
     sys.stderr = open(logs_path / 'stderr.log', 'a')
+
+    commands = [BotCommand('start', 'to start')]
+
+    state = {
+        "horoscope_period": 'today'
+    }
 
 
 class Database:
