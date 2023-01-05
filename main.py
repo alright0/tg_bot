@@ -4,8 +4,8 @@ import telebot
 import random
 import logging
 
+from telebot import types
 from telebot.apihelper import ApiTelegramException
-from telebot.types import BotCommand
 
 from constants import *
 from config import Config, Database as db
@@ -23,38 +23,81 @@ bot.set_my_commands(config.commands)
 
 db()
 
+
 @bot.message_handler(commands=["start"])
-def start(message):
+def command_start(message):
     bot.send_message(message.chat.id, "Чего тебе?", reply_markup=menu.initial_markup())
+
+@bot.message_handler(commands=["horoscope"])
+def command_horoscope(message):
+    markup = types.InlineKeyboardMarkup()
+    buttons = [types.InlineKeyboardButton(k, callback_data=v) for k, v in HOROSCOPE_PERIOD_LIST.items()]
+    markup.add(*buttons)
+
+    bot.send_message(
+        chat_id=message.chat.id,
+        text="Выбери период",
+        reply_markup=markup,
+        parse_mode="MARKDOWN"
+    )
+@bot.callback_query_handler(func=lambda call: call.data in HOROSCOPE_PERIOD_LIST.values())
+def callback_inline(call):
+    if call.message:
+        config.state.update({"horoscope_period": call.data})
+
+        markup = types.InlineKeyboardMarkup()
+        buttons = [types.InlineKeyboardButton(k, callback_data=v) for k, v in HOROSCOPE_BUTTON_LIST.items()]
+        markup.add(*buttons)
+
+        text = "Теперь выбери знак"
+
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                              text=text, reply_markup=markup)
+
+
+@bot.callback_query_handler(func=lambda call: call.data in HOROSCOPE_BUTTON_LIST.values())
+def get_sign(call):
+    if call.message:
+        horoscope_period = config.state.get("horoscope_period", 'today')
+        horoscope_sign = call.data
+
+        markup = types.InlineKeyboardMarkup()
+        button = types.InlineKeyboardButton(THANKS, callback_data=THANKS)
+        markup.add(button)
+
+        text = get_horoscope(horoscope_sign, horoscope_period)
+
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                              text=clean_html(text), reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: call.data == THANKS)
+def thanks(call):
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                          text=call.message.text, reply_markup=None)
+
+    text = 'Позязя :)'
+
+    bot.answer_callback_query(callback_query_id=call.id, show_alert=False, text=text)
 
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
     markup = None
-    # вход в меню гороскопов(выбор периода)
-    if message.text == HOROSCOPE_MENU_BUTTON:
-        text = random.choice(NAVIGATION_MESSAGE_LIST)
-        markup = menu.horoscope_menu_markup()
-
-    # вход в меню гороскопов(выбор знака)
-    elif message.text in HOROSCOPE_PERIOD_LIST.keys():
-        text = random.choice(NAVIGATION_MESSAGE_LIST)
-        markup = menu.horoscope_signs_markup()
-        config.state.update({"horoscope_period": HOROSCOPE_PERIOD_LIST.get(message.text)})
 
     # вход в меню ответов на вопросы
-    elif message.text == RANDOM_CHOICE_MENU_BUTTON:
-        text = '*Задумай свой вопрос и крутани шар*\nОтветы: "Да", "Нет" и все, что между ними'
+    if message.text == RANDOM_CHOICE_MENU_BUTTON:
+        text = '*Задумай свой вопрос и крутани шар*\nОтветы: "*Да*", "*Нет*" и все, что между ними'
         markup = menu.random_choice_markup()
 
     # подписаться на цитаты
     elif message.text == SUBSCRIBE_MENU:
         user = message.from_user
-        text = 'Хочешь получать умные цитаты каждый день?\nСтетхем будет завидовать тебе!'
 
         if db.check_user_is_subscriber(user.id):
+            text = 'Похоже у тебя уже есть подписка на цитаты. Здесь ты можешь ей поуправлять'
             markup = menu.manage_unsubscribe_markup()
         else:
+            text = 'Хочешь получать умные цитаты каждый день?\nСтетхем будет завидовать тебе!'
             markup = menu.manage_subscribe_markup()
 
     # вход в главное меню(кнорка назад)
@@ -136,6 +179,6 @@ def schedule_checker():
 
 
 schedule.every().day.at("09:00").do(send_quote)
-threading.Thread(target=schedule_checker).start()
+# threading.Thread(target=schedule_checker).start()
 
 bot.infinity_polling(interval=0, timeout=600)

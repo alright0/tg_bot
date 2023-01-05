@@ -28,7 +28,10 @@ class Config:
     )
     sys.stderr = open(logs_path / 'stderr.log', 'a')
 
-    commands = [BotCommand('start', 'to start')]
+    commands = [
+        BotCommand('start', 'to start'),
+        BotCommand('horoscope', 'Получить гороскоп'),
+    ]
 
     state = {
         "horoscope_period": 'today'

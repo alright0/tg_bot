@@ -9,10 +9,6 @@ class Button:
         return types.KeyboardButton(INITIAL_MENU)
 
     @staticmethod
-    def horoscope_menu():
-        return types.KeyboardButton(HOROSCOPE_MENU_BUTTON)
-
-    @staticmethod
     def random_choice_menu():
         return types.KeyboardButton(RANDOM_CHOICE_MENU_BUTTON)
 
@@ -36,20 +32,10 @@ class Button:
     def random_choice():
         return types.KeyboardButton(RANDOM_CHOICE_BUTTON)
 
-    @staticmethod
-    def horoscope_signs_buttons():
-        return [types.KeyboardButton(b) for b in HOROSCOPE_BUTTON_LIST.keys()]
-
-    @staticmethod
-    def horoscope_periods():
-        return [types.KeyboardButton(b) for b in HOROSCOPE_PERIOD_LIST]
-
 
 class Markup:
     def __init__(self):
         initial_markup = self.initial_markup()
-        horoscope_signs_markup = self.horoscope_signs_markup()
-        horoscope_menu_markup = self.horoscope_menu_markup()
         random_choice_markup = self.random_choice_markup()
 
     def initial_markup(self):
@@ -57,28 +43,11 @@ class Markup:
             self._create_button(
                 [
                     Button.get_quote(),
-                    Button.horoscope_menu(),
                     Button.random_choice_menu(),
                     Button.subscribe_menu(),
                 ],
                 rows=1
             )
-        ]
-
-        return self._build_markup(buttons)
-
-    def horoscope_menu_markup(self):
-        buttons = [
-            self._create_button(Button.main_menu(), rows=1),
-            self._create_button(Button.horoscope_periods(), rows=3)
-        ]
-
-        return self._build_markup(buttons)
-
-    def horoscope_signs_markup(self):
-        buttons = [
-            self._create_button(Button.main_menu(), rows=1),
-            self._create_button(Button.horoscope_signs_buttons(), rows=3)
         ]
 
         return self._build_markup(buttons)

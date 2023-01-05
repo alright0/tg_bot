@@ -5,6 +5,7 @@ INITIAL_MENU = "Надоело, давай назад!"
 SUBSCRIBE_MENU = "Подписка на цитаты"
 SUBSCRIBE_BUTTON = "Цитаты?! Конечно, хочу!"
 UNSUBSCRIBE_BUTTON = "Цитаты?! Отпиши меня от сраных цитат!!"
+THANKS = "Спасибки!"
 
 HOROSCOPE_PERIOD_LIST = {
     "На сегодня": "today",
