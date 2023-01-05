@@ -28,6 +28,7 @@ db()
 def command_start(message):
     bot.send_message(message.chat.id, "Чего тебе?", reply_markup=menu.initial_markup())
 
+
 @bot.message_handler(commands=["horoscope"])
 def command_horoscope(message):
     markup = types.InlineKeyboardMarkup()
@@ -38,8 +39,67 @@ def command_horoscope(message):
         chat_id=message.chat.id,
         text="Выбери период",
         reply_markup=markup,
-        parse_mode="MARKDOWN"
+        parse_mode="MARKDOWN",
     )
+
+
+@bot.message_handler(commands=["subscribe"])
+def command_subscribe(message):
+    user = message.from_user
+
+    markup = types.InlineKeyboardMarkup()
+    thanks_button = types.InlineKeyboardButton('Не хочу', callback_data=THANKS)
+    if db.check_user_is_subscriber(user.id):
+        button = types.InlineKeyboardButton("Отписаться", callback_data=f"deluser")
+        text = "У тебя уже есть подписка на цитаты. Не говори, что хочешь отписаться"
+    else:
+        button = types.InlineKeyboardButton("Подписаться", callback_data=f"adduser")
+        text = "Хочешь получать умные цитаты каждый день?\nСтетхем будет завидовать тебе!"
+    markup.add(button, thanks_button)
+
+    bot.send_message(
+        chat_id=message.chat.id,
+        parse_mode="MARKDOWN",
+        text=clean_html(text),
+        reply_markup=markup
+    )
+
+
+@bot.callback_query_handler(func=lambda call: call.data == "adduser")
+def callback_subscribe(call):
+    if call.message:
+        user = call.message.chat
+        if not db.check_user_is_subscriber(user.id):
+            text = "Красава! Умная мысль посетит тебя утром!"
+            db.add_user(call.message)
+        else:
+            text = "У тебя уже есть подписка 😙"
+
+        bot.edit_message_text(
+            chat_id=user.id,
+            message_id=call.message.message_id,
+            text=clean_html(text),
+            reply_markup=None
+        )
+
+
+@bot.callback_query_handler(func=lambda call: call.data == "deluser")
+def callback_unsubscribe(call):
+    if call.message:
+        if db.check_user_is_subscriber(call.message.chat.id):
+            db.delete_user(call.message.chat.id)
+            text = "Мудила, ну и вали отсюда"
+        else:
+            text = "У тебя еще нет подписки, а ты уже пытаешься отписаться, псина?"
+
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=clean_html(text),
+            reply_markup=None
+        )
+
+
 @bot.callback_query_handler(func=lambda call: call.data in HOROSCOPE_PERIOD_LIST.values())
 def callback_inline(call):
     if call.message:
@@ -51,12 +111,16 @@ def callback_inline(call):
 
         text = "Теперь выбери знак"
 
-        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                              text=text, reply_markup=markup)
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=text,
+            reply_markup=markup
+        )
 
 
 @bot.callback_query_handler(func=lambda call: call.data in HOROSCOPE_BUTTON_LIST.values())
-def get_sign(call):
+def callback_get_sign(call):
     if call.message:
         horoscope_period = config.state.get("horoscope_period", 'today')
         horoscope_sign = call.data
@@ -67,15 +131,20 @@ def get_sign(call):
 
         text = get_horoscope(horoscope_sign, horoscope_period)
 
-        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                              text=clean_html(text), reply_markup=markup)
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=clean_html(text),
+            reply_markup=markup
+        )
+
 
 @bot.callback_query_handler(func=lambda call: call.data == THANKS)
-def thanks(call):
+def callback_thanks(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=call.message.text, reply_markup=None)
 
-    text = 'Позязя :)'
+    text = f'{random.choice(WELCOME_LIST)} {random.choice(SMILE_LIST)}'
 
     bot.answer_callback_query(callback_query_id=call.id, show_alert=False, text=text)
 
@@ -89,18 +158,7 @@ def handle_text(message):
         text = '*Задумай свой вопрос и крутани шар*\nОтветы: "*Да*", "*Нет*" и все, что между ними'
         markup = menu.random_choice_markup()
 
-    # подписаться на цитаты
-    elif message.text == SUBSCRIBE_MENU:
-        user = message.from_user
-
-        if db.check_user_is_subscriber(user.id):
-            text = 'Похоже у тебя уже есть подписка на цитаты. Здесь ты можешь ей поуправлять'
-            markup = menu.manage_unsubscribe_markup()
-        else:
-            text = 'Хочешь получать умные цитаты каждый день?\nСтетхем будет завидовать тебе!'
-            markup = menu.manage_subscribe_markup()
-
-    # вход в главное меню(кнорка назад)
+    # вход в главное меню(кнопка назад)
     elif message.text == INITIAL_MENU:
         text = random.choice(NAVIGATION_MESSAGE_LIST)
         markup = menu.initial_markup()
@@ -113,34 +171,6 @@ def handle_text(message):
     elif message.text in QUOTES_BUTTON_LIST:
         text = get_quote()
         markup = menu.initial_markup()
-
-    # получить гороскоп
-    elif message.text in HOROSCOPE_BUTTON_LIST.keys():
-        horoscope_sign = HOROSCOPE_BUTTON_LIST.get(message.text)
-        horoscope_period = config.state.get("horoscope_period", 'today')
-        text = get_horoscope(horoscope_sign, horoscope_period)
-
-    # подписаться на цитаты
-    elif message.text == SUBSCRIBE_BUTTON:
-        user = message.from_user
-        markup = menu.manage_unsubscribe_markup()
-        text = "Красава! Умная мысль посетит тебя утром!"
-
-        if not db.check_user_is_subscriber(user.id):
-            db.add_user(message)
-        else:
-            text = "У тебя уже есть подписка на цитаты! Побереги себя!"
-
-    # отписаться от цитат
-    elif message.text == UNSUBSCRIBE_BUTTON:
-        user = message.from_user
-        markup = menu.manage_subscribe_markup()
-        text = "Ты больше не будешь получать цитаты, потому что ты не фелосаф"
-        if db.check_user_is_subscriber(user.id):
-            db.delete_user(user.id)
-        else:
-            text = "Сначала подпишись на цитаты, потом отписывайся, я не наоборот!!"
-
 
     # остальное
     else:

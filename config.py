@@ -29,8 +29,9 @@ class Config:
     sys.stderr = open(logs_path / 'stderr.log', 'a')
 
     commands = [
-        BotCommand('start', 'to start'),
+        BotCommand('start', 'Тут можно начать общение со мной'),
         BotCommand('horoscope', 'Получить гороскоп'),
+        BotCommand('subscribe', 'Управление подпиской на цитаты'),
     ]
 
     state = {
@@ -62,7 +63,7 @@ class Database:
 
     @classmethod
     def add_user(cls, message):
-        user = message.from_user
+        user = message.chat
         chat_id = message.chat.id
 
         if not cls.check_user_is_subscriber(user.id):
