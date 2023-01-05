@@ -179,6 +179,6 @@ def schedule_checker():
 
 
 schedule.every().day.at("09:00").do(send_quote)
-# threading.Thread(target=schedule_checker).start()
+threading.Thread(target=schedule_checker).start()
 
 bot.infinity_polling(interval=0, timeout=600)
